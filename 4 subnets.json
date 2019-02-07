@@ -1,0 +1,49 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vnetname":{
+            "type": "string",
+            "defaultValue": "ntier"
+        },
+        "vnetaddresspace":{
+            "type": "array",
+            "defaultValue":["10.10.0.0/16"]
+        
+        },
+        "subnetaddress":{
+            "type": "array",
+            "defaultValue": ["10.10.0.0/24","10.10.1.0/24","10.10.2.0/24","10.10.3.0/24"]
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "name":"[parameters('vnetname')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2018-08-01",
+            "location": "Central US",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes":"[parameters('vnetaddresspace')]"
+                }
+            }
+},
+{
+    "type": "Microsoft.Network/virtualNetworks/subnets",
+    "name":"[concat(parameters('vnetname'),'/subnet',copyindex())]",
+    "apiVersion": "2018-08-01",
+    "location": "Central US",
+    "properties": {
+        "addressPrefix":"[parameters('subnetaddress')[copyindex()]]"
+    },
+    "copy": {
+        "count": 4,
+        "name":"subnetcopy",
+        "mode": "Serial"
+    },
+    "dependsOn": ["[parameters('vnetname')]"]
+}
+    ],
+    "outputs": {}
+}
